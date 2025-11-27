@@ -1,245 +1,199 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dashboard - Banking Marketing</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <style>
-      body {
-        font-family: "Segoe UI", Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background: #f5f6fa;
-        color: #333;
-      }
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard - Banking Marketing</title>
 
-      header {
-        padding: 20px;
-        background: #2c3e50;
-        color: #fff;
-        text-align: center;
-      }
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-      h1 { margin: 0; font-size: 28px; }
+<style>
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  margin: 0; padding: 0;
+  background: #f5f6fa; color: #333;
+}
+header { padding: 20px; background: #2c3e50; color: #fff; text-align: center; }
+h1 { margin: 0; font-size: 28px; }
+.container { max-width: 1100px; margin: auto; padding: 20px; }
+.card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.metric-card { border-radius: 10px; background: white; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+.metric-title { font-size: 0.9rem; color: #555; }
+.metric-value { font-size: 1.5rem; font-weight: bold; color: #0d6efd; }
+#chartContainer { margin-top: 20px; }
+#chart { width: 100% !important; height: 350px !important; }
+#result { margin-top: 20px; padding: 15px; border-radius: 10px; background: #f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,0.1); white-space: pre-wrap; font-family: monospace; }
+label { font-size: 15px; font-weight: 600; margin-top: 10px; display: block; }
+input, select { padding: 10px; width: 100%; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+button { padding: 12px 18px; background: #3498db; border: none; color: white; border-radius: 6px; font-size: 16px; cursor: pointer; transition: 0.2s; }
+button:hover { background: #2980b9; }
+@media (max-width: 768px) { #chart { height: 250px !important; } }
+</style>
+</head>
 
-      .container {
-        max-width: 1100px;
-        margin: auto;
-        padding: 20px;
-      }
+<body>
 
-      .card {
-        background: #fff;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      }
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Banking Marketing</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" href="/history">Historial</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
 
-      label {
-        font-size: 15px;
-        font-weight: 600;
-        margin-top: 10px;
-        display: block;
-      }
+<div class="container">
 
-      input, select {
-        padding: 10px;
-        width: 100%;
-        margin-top: 5px;
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        font-size: 14px;
-      }
+  <!-- Métricas del modelo -->
+  <div class="card mb-3 p-3">
+    <h5 class="mb-2">Métricas del Modelo</h5>
+    <div class="row g-3 mb-2" id="metricsCards"></div>
 
-      button {
-        padding: 12px 18px;
-        background: #3498db;
-        border: none;
-        color: white;
-        border-radius: 6px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-
-      button:hover {
-        background: #2980b9;
-      }
-
-      #result {
-        margin-top: 20px;
-        background: #fff;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        white-space: pre-wrap;
-      }
-
-      /* Chart container fix */
-      #chartContainer {
-        margin-top: 20px;
-      }
-
-      #chart {
-        width: 100% !important;
-        height: 420px !important;
-      }
-
-      @media (max-width: 768px) {
-        #chart {
-          height: 300px !important;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-      <div class="container">
-        <a class="navbar-brand" href="/">Banking Marketing</a>
-        <div class="collapse navbar-collapse">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
-            <li class="nav-item"><a class="nav-link" href="/history">Historial</a></li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
-    <div class="container">
-
-      <div class="card mb-3 p-3">
-        <h5 class="mb-2">Métricas del Modelo</h5>
-        <pre id="metrics">Cargando métricas...</pre>
-      </div>
-
-      <!-- FIX: Contenedor adecuado para Plotly -->
-      <div class="card mb-3 p-3" id="chartContainer">
-        <div id="chart"></div>
-      </div>
-
-      <div class="card mb-3 p-3">
-        <h5>Realizar Predicción</h5>
-        <form id="predictForm">
-          <div id="formFields" class="row g-2"></div>
-          <div class="mt-3">
-            <button class="btn btn-primary" type="submit">Predecir</button>
-          </div>
-        </form>
-      </div>
-
-      <div id="result"></div>
-
+    <div class="d-flex align-items-center mb-2">
+      <label for="metricsModelSelector" class="me-2">Seleccionar métricas de modelo:</label>
+      <select id="metricsModelSelector" class="form-select w-auto">
+        <option value="ml">Machine Learning</option>
+        <option value="dl">Deep Learning</option>
+      </select>
     </div>
 
-    <script>
-      const labels_es = {
-        age: 'Edad',
-        job: 'Trabajo',
-        marital: 'Estado civil',
-        education: 'Nivel educativo',
-        default: 'Crédito en mora',
-        balance: 'Balance en cuenta',
-        housing: 'Crédito hipotecario',
-        loan: 'Crédito personal',
-        contact: 'Tipo de contacto',
-        day: 'Día del mes',
-        month: 'Mes',
-        duration: 'Duración de la llamada (segundos)',
-        campaign: 'Número de contactos en esta campaña',
-        pdays: 'Días desde último contacto',
-        previous: 'Número de contactos previos',
-        poutcome: 'Resultado de campaña anterior'
-      };
+    <div id="chartContainer">
+      <div id="chart"></div>
+    </div>
+  </div>
 
-      const fields = Object.keys(labels_es);
+  <!-- Formulario de predicción -->
+  <div class="card mb-3 p-3">
+    <h5>Realizar Predicción</h5>
+    <form id="predictForm">
+      <div id="formFields" class="row g-2"></div>
 
-      const options = {
-        job: ['admin.', 'unknown', 'unemployed','management','housemaid','entrepreneur','student','blue-collar','self-employed','retired','technician','services'],
-        marital: ['casado','divorciado','soltero','desconocido'],
-        education: ['secundaria','universitaria','primaria','desconocido'],
-        default: ['no','si','desconocido'],
-        housing: ['no','si'],
-        loan: ['no','si'],
-        contact: ['desconocido','teléfono','celular'],
-        month: ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],
-        poutcome: ['desconocido','otro','falló','éxito']
-      };
+      <label class="mt-2">Elegir método de predicción:</label>
+      <select id="modelSelector" class="form-select mb-3" required>
+        <option value="">Seleccionar modelo...</option>
+        <option value="ml">Machine Learning</option>
+        <option value="dl">Deep Learning</option>
+      </select>
 
-      const formDiv = document.getElementById('formFields');
-      fields.forEach(f => {
-        const label = document.createElement('label');
-        label.textContent = labels_es[f];
-        formDiv.appendChild(label);
+      <button class="btn btn-primary w-100" type="submit">Realizar Predicción</button>
+    </form>
+  </div>
 
-        if (options[f]) {
-          const sel = document.createElement('select');
-          sel.name = f;
-          sel.required = true;
-          options[f].forEach(opt => {
-            const o = document.createElement('option');
-            o.value = opt;
-            o.textContent = opt;
-            sel.appendChild(o);
-          });
-          formDiv.appendChild(sel);
-        } else {
-          const input = document.createElement('input');
-          input.name = f;
-          input.required = true;
-          if (['age','balance','day','duration','campaign','pdays','previous'].includes(f)) {
-            input.type = 'number';
-            input.step = '1';
-          } else {
-            input.type = 'text';
-          }
-          formDiv.appendChild(input);
-        }
-      });
+  <div id="result">📌 Resultado aparecerá aquí...</div>
+</div>
 
-      fetch('/metrics').then(r => r.json()).then(m => {
-        document.getElementById('metrics').textContent = JSON.stringify(m, null, 2);
+<script>
+// Campos de entrada
+const labels_es = {
+  age:'Edad', job:'Trabajo', marital:'Estado civil', education:'Nivel educativo',
+  default:'Crédito en mora', balance:'Balance en cuenta', housing:'Crédito hipotecario',
+  loan:'Crédito personal', contact:'Tipo de contacto', day:'Día del mes',
+  month:'Mes', duration:'Duración de la llamada (segundos)',
+  campaign:'Número de contactos en esta campaña', pdays:'Días desde último contacto',
+  previous:'Número de contactos previos', poutcome:'Resultado de campaña anterior'
+};
+const fields = Object.keys(labels_es);
+const options = {
+  job:['admin.','unknown','unemployed','management','housemaid','entrepreneur','student','blue-collar','self-employed','retired','technician','services'],
+  marital:['casado','divorciado','soltero','desconocido'],
+  education:['secundaria','universitaria','primaria','desconocido'],
+  default:['no','si','desconocido'],
+  housing:['no','si'],
+  loan:['no','si'],
+  contact:['desconocido','teléfono','celular'],
+  month:['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],
+  poutcome:['desconocido','otro','falló','éxito']
+};
 
-        const names = [], values = [];
-        if (m.accuracy !== undefined) { names.push('Exactitud'); values.push(m.accuracy); }
-        if (m.precision !== undefined) { names.push('Precisión'); values.push(m.precision); }
-        if (m.recall !== undefined) { names.push('Recall'); values.push(m.recall); }
-        if (m.f1 !== undefined) { names.push('F1 Score'); values.push(m.f1); }
+// Crear inputs dinámicos
+const formDiv = document.getElementById('formFields');
+fields.forEach(f => {
+  const label = document.createElement('label'); label.textContent = labels_es[f]; formDiv.appendChild(label);
+  if (options[f]) {
+    const sel = document.createElement('select'); sel.name=f; sel.required=true;
+    options[f].forEach(opt=>{ const o=document.createElement('option'); o.value=opt; o.textContent=opt; sel.appendChild(o); });
+    formDiv.appendChild(sel);
+  } else {
+    const input=document.createElement('input'); input.name=f; input.required=true;
+    input.type = ['age','balance','day','duration','campaign','pdays','previous'].includes(f) ? 'number':'text';
+    formDiv.appendChild(input);
+  }
+});
 
-        if (values.length>0) {
-          const layout = {
-            title: 'Métricas del Modelo',
-            margin: { t:40, r:20, l:50, b:40 },
-            xaxis: { tickangle: -45 },
-            autosize: true
-          };
-          const config = { responsive: true };
-          Plotly.newPlot('chart', [{ x: names, y: values, type: 'bar', marker: {color: '#3498db'}}], layout, config);
-        }
-      }).catch(err => {
-        document.getElementById('metrics').textContent = 'No se pudieron cargar métricas: ' + err;
-      });
+// Cargar métricas y graficar
+async function loadMetrics(model='ml'){
+  try{
+    const res=await fetch(`/metrics?model=${model}`);
+    const metrics=await res.json();
 
-      document.getElementById('predictForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = {};
-        fields.forEach(f => {
-          const el = document.getElementsByName(f)[0];
-          data[f] = el.value;
-        });
+    const container=document.getElementById('metricsCards');
+    container.innerHTML='';
+    const cards=[
+      {title:'Accuracy', value:metrics.accuracy},
+      {title:'Precision', value:metrics.precision},
+      {title:'Recall', value:metrics.recall},
+      {title:'F1 Score', value:metrics.f1}
+    ];
 
-        const res = await fetch('/predict', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ input: data })
-        });
+    cards.forEach(m=>{
+      const div=document.createElement('div');
+      div.className='col-6 col-md-3';
+      div.innerHTML=`
+        <div class="metric-card">
+          <div class="metric-title">${m.title}</div>
+          <div class="metric-value">${(m.value*100).toFixed(2)}%</div>
+        </div>`;
+      container.appendChild(div);
+    });
 
-        const json = await res.json();
-        document.getElementById('result').textContent = JSON.stringify(json, null, 2);
-      });
-    </script>
-  </body>
+    // Gráfica de barras
+    const trace={x:cards.map(c=>c.title),y:cards.map(c=>c.value*100),type:'bar',marker:{color:'#0d6efd'},text:cards.map(c=>(c.value*100).toFixed(2)+'%'),textposition:'auto'};
+    Plotly.newPlot('chart',[trace],{margin:{t:20}});
+  }catch(err){ console.error('Error al cargar métricas:',err); }
+}
+
+// Cambiar métricas según selector
+document.getElementById('metricsModelSelector').addEventListener('change',e=>{ loadMetrics(e.target.value); });
+
+// Predicción
+document.getElementById('predictForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const modelSelected=document.getElementById('modelSelector').value;
+  if(!modelSelected){ alert("⚠️ Elige un modelo"); return; }
+
+  const data={};
+  fields.forEach(f=>data[f]=document.getElementsByName(f)[0].value);
+
+  const res=await fetch("/predict",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:data,model_type:modelSelected})});
+  const json=await res.json();
+
+  const resultDiv=document.getElementById('result');
+  if(json.error){
+    resultDiv.innerHTML=`<div style="color:red;"><strong>⚠️ Error:</strong> ${json.error}</div>`;
+  } else {
+    const probPercent=(json.probability*100).toFixed(3);
+    const color=json.prediction===1?'green':'red';
+    const message=json.prediction===1?'Cliente responde positivamente':'Cliente NO responde';
+
+    resultDiv.innerHTML=`
+      <div style="font-size:16px; color:${color}; padding:15px; border-left:4px solid ${color}; background:#f1f1f1; border-radius:8px;">
+        <strong>📌 Resultado:</strong><br><br>
+        <strong>Mensaje:</strong> ${message}<br>
+        <strong>Predicción:</strong> ${json.prediction}<br>
+        <strong>Probabilidad:</strong> ${probPercent}%<br>
+        <strong>Modelo usado:</strong> ${json.used_model.toUpperCase()}
+      </div>
+    `;
+  }
+});
+
+// Inicializar métricas ML por defecto
+loadMetrics('ml');
+</script>
+
+</body>
 </html>
