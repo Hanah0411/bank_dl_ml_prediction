@@ -9,16 +9,36 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import io
 import base64
+import gdown
+
+# --- Crear carpeta para modelos ---
+if not os.path.exists("models"):
+    os.makedirs("models")
+
+# --- IDs de tus archivos en Google Drive ---
+files = {
+    "modelo_ml.pkl": "1B-XAvfHRgadKIw2whUAFzmC6yNnjhEX9",
+    "preprocessor_ml.pkl": "1WdSHeznGyCh6cQOKRFDQlxAy_vNSxkiT",
+    "modelo_dl.h5": "1YC1Rd5uC9AUnduHg_4CekLFX5ZoeVdHr",
+    "preprocessor_dl.pkl": "1znjch9JhejxJyCUIgDT7dgnMi158-Sx1"
+}
+
+# --- Descargar archivos si no existen ---
+for filename, file_id in files.items():
+    path = os.path.join("models", filename)
+    if not os.path.exists(path):
+        url = f"https://drive.google.com/uc?id={file_id}"
+        gdown.download(url, path, quiet=False)
 
 # --- Configurar Flask ---
 app = Flask(__name__, template_folder="templates")
 
 # --- Cargar modelos ---
-model_ml = joblib.load("modelo_ml.pkl")
-preprocessor_ml = joblib.load("preprocessor_ml.pkl")
+model_ml = joblib.load(os.path.join("models", "modelo_ml.pkl"))
+preprocessor_ml = joblib.load(os.path.join("models", "preprocessor_ml.pkl"))
 
-model_dl = load_model("modelo_dl.h5")
-preprocessor_dl = joblib.load("preprocessor_dl.pkl")
+model_dl = load_model(os.path.join("models", "modelo_dl.h5"))
+preprocessor_dl = joblib.load(os.path.join("models", "preprocessor_dl.pkl"))
 
 history = []
 
@@ -128,13 +148,9 @@ def predict_dl():
             if f in data:
                 data[f] = str(data[f]).lower()
 
-        # --- DataFrame ---
         df = pd.DataFrame([data])
-
-        # --- Transformar con preprocesador DL ---
         X_processed = preprocessor_dl.transform(df.astype(str)).astype(np.float32)
 
-        # --- Predicción ---
         prob = float(model_dl.predict(X_processed)[0][0])
         pred = 1 if prob >= 0.5 else 0
 
@@ -176,3 +192,4 @@ def predict_dl():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
