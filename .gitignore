@@ -1,8 +1,11 @@
+# Entorno virtual
 venv/
 __pycache__/
 *.pyc
 *.pyo
-*.pkl
-*.h5
-*.joblib
+
+# Modelos grandes (los descargas al inicio)
+models/
+
+# Archivos de entorno
 .env
