@@ -9,31 +9,11 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import io
 import base64
-import gdown
-
-# --- Crear carpeta para modelos ---
-if not os.path.exists("models"):
-    os.makedirs("models")
-
-# --- IDs de tus archivos en Google Drive ---
-files = {
-    "modelo_ml.pkl": "1B-XAvfHRgadKIw2whUAFzmC6yNnjhEX9",
-    "preprocessor_ml.pkl": "1WdSHeznGyCh6cQOKRFDQlxAy_vNSxkiT",
-    "modelo_dl.h5": "1YC1Rd5uC9AUnduHg_4CekLFX5ZoeVdHr",
-    "preprocessor_dl.pkl": "1znjch9JhejxJyCUIgDT7dgnMi158-Sx1"
-}
-
-# --- Descargar archivos si no existen ---
-for filename, file_id in files.items():
-    path = os.path.join("models", filename)
-    if not os.path.exists(path):
-        url = f"https://drive.google.com/uc?id={file_id}"
-        gdown.download(url, path, quiet=False)
 
 # --- Configurar Flask ---
 app = Flask(__name__, template_folder="templates")
 
-# --- Cargar modelos ---
+# --- Cargar modelos desde la carpeta 'models' ---
 model_ml = joblib.load(os.path.join("models", "modelo_ml.pkl"))
 preprocessor_ml = joblib.load(os.path.join("models", "preprocessor_ml.pkl"))
 
@@ -92,7 +72,7 @@ def predict_ml():
         prob = model_ml.predict_proba(X_processed)[0][1]
         pred = int(prob >= 0.5)
 
-        # Generar gráficas dinámicas
+        # Gráficas dinámicas
         fig1, ax1 = plt.subplots()
         ax1.imshow([[50,10],[5,35]], cmap='Blues')
         ax1.set_title("Confusion Matrix")
@@ -135,14 +115,12 @@ def predict_dl():
         if not data:
             return jsonify({"error": "No se recibió input"}), 400
 
-        # --- Campos numéricos ---
         numeric_fields = ['age','balance','day','duration','campaign','pdays','previous']
         for f in numeric_fields:
             if f in data:
                 try: data[f] = float(data[f])
                 except: data[f] = 0.0
 
-        # --- Campos categóricos ---
         categorical_fields = ['job','marital','education','contact','poutcome','default','housing','loan']
         for f in categorical_fields:
             if f in data:
@@ -154,7 +132,6 @@ def predict_dl():
         prob = float(model_dl.predict(X_processed)[0][0])
         pred = 1 if prob >= 0.5 else 0
 
-        # --- Gráficas dinámicas ---
         fig1, ax1 = plt.subplots()
         ax1.imshow([[45,12],[7,36]], cmap='Blues')
         ax1.set_title("Confusion Matrix DL")
@@ -191,5 +168,4 @@ def predict_dl():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
-
+    app.run(host="0.0.0.0", port=port)

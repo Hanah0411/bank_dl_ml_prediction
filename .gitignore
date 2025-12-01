@@ -4,8 +4,6 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Modelos grandes (los descargas al inicio)
-models/
 
 # Archivos de entorno
 .env
